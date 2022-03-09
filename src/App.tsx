@@ -33,7 +33,7 @@ function App() {
             name="Home"
             component={Home}
             options={{
-              title: 'Search',
+              title: 'Unsplash Photo Search!',
               headerTitleStyle: styles.header,
               headerStyle: styles.headerStyle,
             }}
