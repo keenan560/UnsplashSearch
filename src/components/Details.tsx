@@ -7,13 +7,77 @@ import {
   Modal,
   Pressable,
   Alert,
+  TouchableOpacity,
+  PermissionsAndroid,
+  Platform,
 } from 'react-native';
+import RNFetchBlob from 'rn-fetch-blob';
 import {PhotoContext} from '../App';
 
 function Details({}) {
   const photoContext = useContext(PhotoContext);
   const [modalVisible, setModalVisible] = useState(false);
   console.log(photoContext.photoState.data);
+
+  const checkPermission = async () => {
+    if (Platform.OS === 'ios') {
+      downloadImage();
+    } else {
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+          {
+            title: 'Storage Permission Required',
+            message: 'Unsplash needs access to your storage to download Photo',
+          },
+        );
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          console.log('Storage Permission Granted');
+          downloadImage();
+        } else {
+          alert('Storage Permission Denied');
+        }
+      } catch (error) {
+        console.warn(error.message);
+      }
+    }
+  };
+
+  const downloadImage = () => {
+    let date = new Date();
+    let image_url = photoContext.photoState.data.urls.regular;
+    let ext = getExtension(image_url);
+    ext = '.' + ext[0];
+    // Get config and fs from RNFetchBlob
+    const {config, fs} = RNFetchBlob;
+    let PictureDir = fs.dirs.PictureDir;
+    let options = {
+      fileCache: true,
+      addAndroidDownloads: {
+        // Related to Android only
+        useDownloadManager: true,
+        notification: true,
+        path:
+          PictureDir +
+          '/image_' +
+          Math.floor(date.getTime() + date.getSeconds() / 2) +
+          ext,
+        description: 'Image',
+      },
+    };
+    config(options)
+      .fetch('GET', image_url)
+      .then(response => {
+        // Allert success after download
+        console.log('response', JSON.stringify(response));
+        alert('Photo downloaded successfully');
+      });
+  };
+
+  const getExtension = filename => {
+    return /[.]/.exec(filename) ? /[^.]+$/.exec(filename) : undefined;
+  };
+
   return (
     <View style={styles.container}>
       <Modal
@@ -51,6 +115,9 @@ function Details({}) {
         source={{uri: photoContext.photoState.data.urls.full}}
         style={styles.itemThumbnail}
       />
+      <TouchableOpacity style={styles.download} onPress={checkPermission}>
+        <Text style={styles.downloadText}>Download</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -65,9 +132,8 @@ const styles = StyleSheet.create({
   },
   itemThumbnail: {
     width: '100%',
-    height: '100%',
+    height: '75%',
     borderWidth: 10,
-    marginBottom: 5,
     backgroundColor: '#edeff2',
   },
   centeredView: {
@@ -101,7 +167,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#edeff2',
   },
   buttonClose: {
-    backgroundColor: '#2196F3',
+    backgroundColor: '#2960df',
   },
   textStyle: {
     fontWeight: 'bold',
@@ -111,5 +177,16 @@ const styles = StyleSheet.create({
   modalText: {
     marginBottom: 15,
     textAlign: 'center',
+  },
+  download: {
+    width: '100%',
+    backgroundColor: '#2960df',
+    padding: 10,
+  },
+  downloadText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    textAlign: 'center',
+    padding: 10,
   },
 });
