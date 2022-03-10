@@ -13,17 +13,19 @@ Simple project requested by Tactacam that allows you to search for photos using 
 
 Open terminal and run:
 
-git clone https://github.com/keenan560/UnsplashSearch.git
+`git clone https://github.com/keenan560/UnsplashSearch.git`
 
 # Step 2
 
-cd UnsplashSearch && yarn install && cd ios && pod install && cd ..
+`cd UnsplashSearch && yarn install && cd ios && pod install && cd ..`
 
 # Step 3
 
 For android run:
-npm run android
+
+`npm run android`
 
 For ios run:
-npm run ios
+
+`npm run ios`
 
