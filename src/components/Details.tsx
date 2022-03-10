@@ -141,6 +141,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 22,
+    opacity: 0.9,
   },
   modalView: {
     margin: 20,
@@ -156,6 +157,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
+    opacity: 0.9,
   },
   button: {
     borderRadius: 5,
