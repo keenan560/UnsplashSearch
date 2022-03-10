@@ -19,10 +19,12 @@ import {
   TextInput,
   FlatList,
   Image,
+  ActivityIndicator,
 } from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 import {PhotoContext} from '../App';
 import {CLIENT_ID} from 'react-native-dotenv';
+import {useCallback} from 'react';
 
 const Home = ({navigation}) => {
   interface IsSearch {
@@ -31,43 +33,53 @@ const Home = ({navigation}) => {
   }
 
   const [searchQuery, setSearchQuery] = useState<IsSearch['search']>('');
-  const [data, setData] = useState([]);
+  const [photos, setPhotos] = useState([]);
   const [selectedColor, setSelectedColor] = useState('');
   const [selectedOrientation, setSelectedOrientation] = useState('');
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [toggleCheckBox, setToggleCheckBox] = useState(false);
   const photoContext = useContext(PhotoContext);
-  const apiEndPoint: IsSearch['api'] = `https://api.unsplash.com/search/photos?page=1&query=${searchQuery}&client_id=${CLIENT_ID}&page=1`;
+  const [currentPage, setCurrentPage] = useState(1);
+  const apiEndPoint: IsSearch['api'] = `https://api.unsplash.com/search/photos?&query=${searchQuery}&client_id=${CLIENT_ID}&page=${currentPage}`;
 
-  const unsplashSearch = async () => {
-    if (searchQuery) {
-      setIsLoading(true);
-      await fetch(urlRouter())
-        .then(response => response.json())
-        // eslint-disable-next-line @typescript-eslint/no-shadow
-        .then(data => setData(data.results));
-    } else {
-      alert('Please enter a valid query');
+  const unsplashSearch = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      if (searchQuery) {
+        await fetch(urlRouter())
+          .then(response => response.json())
+          .then(data => setPhotos([...photos, ...data.results]));
+        setIsLoading(false);
+      } else {
+        setIsLoading(false);
+        alert('Please enter a valid query');
+      }
+    } catch (error) {
+      setIsLoading(false);
+      alert('Sorry experiencing technical difficulties');
     }
-  };
+  }, [currentPage, searchQuery, selectedOrientation, selectedColor]);
 
   const urlRouter = () => {
     switch (true) {
       case selectedColor && !selectedOrientation:
-        return `https://api.unsplash.com/search/photos?page=1&query=${searchQuery}&client_id=${CLIENT_ID}&page=1&color=${selectedColor}`;
+        return `https://api.unsplash.com/search/photos?&query=${searchQuery}&client_id=${CLIENT_ID}&&color=${selectedColor}&page=${currentPage}`;
       case selectedOrientation && !selectedColor:
-        return `https://api.unsplash.com/search/photos?page=1&query=${searchQuery}&client_id=${CLIENT_ID}&page=1&=orientation=${selectedOrientation}`;
+        return `https://api.unsplash.com/search/photos?&query=${searchQuery}&client_id=${CLIENT_ID}&&=orientation=${selectedOrientation}&page=${currentPage}`;
       case !selectedColor && !selectedOrientation:
-        return `https://api.unsplash.com/search/photos?page=1&query=${searchQuery}&client_id=${CLIENT_ID}&page=1`;
+        return `https://api.unsplash.com/search/photos?&query=${searchQuery}&client_id=${CLIENT_ID}&page=${currentPage}`;
       default:
         return apiEndPoint;
     }
   };
 
   const clearResults = () => {
-    setData([]);
+    setPhotos([]);
     setSearchQuery('');
     setSelectedColor('');
     setSelectedOrientation('');
+    setCurrentPage(1);
+    setIsLoading(false);
   };
 
   const renderItem = ({item}) => {
@@ -85,6 +97,19 @@ const Home = ({navigation}) => {
         </TouchableOpacity>
       </View>
     );
+  };
+  const renderLoader = () => {
+    return isLoading ? (
+      <View style={styles.loaderStyler}>
+        <ActivityIndicator size="large" color="#aaa" />
+      </View>
+    ) : null;
+  };
+
+  const loadMoreItems = async () => {
+    console.log('log more items!');
+    await setCurrentPage(currentPage + 1);
+    return unsplashSearch();
   };
 
   return (
@@ -141,10 +166,15 @@ const Home = ({navigation}) => {
 
       <SafeAreaView style={styles.container}>
         <FlatList
-          data={data}
+          data={photos}
           renderItem={renderItem}
           keyExtractor={item => item.id}
           showsVerticalScrollIndicator={false}
+          ListFooterComponent={renderLoader}
+          onEndReached={loadMoreItems}
+          onEndReachedThreshold={0.5}
+          scrollsToTop={true}
+          alwaysBounceVertical={true}
         />
       </SafeAreaView>
     </View>
@@ -220,6 +250,10 @@ const styles = StyleSheet.create({
     padding: 10,
     color: '#fff',
     fontWeight: 'bold',
+  },
+  loaderStyler: {
+    marginVertical: 16,
+    alignItems: 'center',
   },
 });
 
