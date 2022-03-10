@@ -56,18 +56,20 @@ const Home = ({navigation}) => {
       }
     } catch (error) {
       setIsLoading(false);
-      alert('Sorry experiencing technical difficulties');
+      console.log(error);
     }
   }, [currentPage, searchQuery, selectedOrientation, selectedColor]);
 
   const urlRouter = () => {
     switch (true) {
       case selectedColor && !selectedOrientation:
-        return `https://api.unsplash.com/search/photos?&query=${searchQuery}&client_id=${CLIENT_ID}&&color=${selectedColor}&page=${currentPage}`;
+        return `https://api.unsplash.com/search/photos?&query=${searchQuery}&client_id=${CLIENT_ID}&color=${selectedColor}&page=${currentPage}`;
       case selectedOrientation && !selectedColor:
-        return `https://api.unsplash.com/search/photos?&query=${searchQuery}&client_id=${CLIENT_ID}&&=orientation=${selectedOrientation}&page=${currentPage}`;
+        return `https://api.unsplash.com/search/photos?&query=${searchQuery}&client_id=${CLIENT_ID}&=orientation=${selectedOrientation}&page=${currentPage}`;
       case !selectedColor && !selectedOrientation:
         return `https://api.unsplash.com/search/photos?&query=${searchQuery}&client_id=${CLIENT_ID}&page=${currentPage}`;
+      case selectedColor !== '' && selectedOrientation !== '':
+        return `https://api.unsplash.com/search/photos?&query=${searchQuery}&client_id=${CLIENT_ID}&page=${currentPage}&&=orientation=${selectedOrientation}&color=${selectedColor}`;
       default:
         return apiEndPoint;
     }
