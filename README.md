@@ -34,3 +34,6 @@ For ios run:
 
 `npm run ios`
 
+# **ios Issue** 
+
+Project is currently experiencing issues with xcode, therefore it is recommended until fixed that the project but ran in android.
