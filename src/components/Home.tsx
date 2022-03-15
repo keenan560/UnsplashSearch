@@ -23,7 +23,7 @@ import {
 } from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 import {PhotoContext} from '../App';
-import {CLIENT_ID} from 'react-native-dotenv';
+import CLIENT_ID from '../../env';
 import {useCallback} from 'react';
 
 const Home = ({navigation}) => {
@@ -40,7 +40,7 @@ const Home = ({navigation}) => {
   const [toggleCheckBox, setToggleCheckBox] = useState(false);
   const photoContext = useContext(PhotoContext);
   const [currentPage, setCurrentPage] = useState(1);
-  const apiEndPoint: IsSearch['api'] = `https://api.unsplash.com/search/photos?&query=${searchQuery}&client_id=${CLIENT_ID}&page=${currentPage}`;
+  const apiEndPoint: IsSearch['api'] = `https://api.unsplash.com/search/photos?&query=${searchQuery}&client_id=${CLIENT_ID.CLIENT_ID}&page=${currentPage}`;
 
   const unsplashSearch = useCallback(async () => {
     setIsLoading(true);
@@ -56,20 +56,20 @@ const Home = ({navigation}) => {
       }
     } catch (error) {
       setIsLoading(false);
-      console.log(error);
+      alert('Sorry we are experiencing technical difficulties');
     }
   }, [currentPage, searchQuery, selectedOrientation, selectedColor]);
 
   const urlRouter = () => {
     switch (true) {
       case selectedColor && !selectedOrientation:
-        return `https://api.unsplash.com/search/photos?&query=${searchQuery}&client_id=${CLIENT_ID}&color=${selectedColor}&page=${currentPage}`;
+        return `https://api.unsplash.com/search/photos?&query=${searchQuery}&client_id=${CLIENT_ID.CLIENT_ID}&color=${selectedColor}&page=${currentPage}`;
       case selectedOrientation && !selectedColor:
-        return `https://api.unsplash.com/search/photos?&query=${searchQuery}&client_id=${CLIENT_ID}&=orientation=${selectedOrientation}&page=${currentPage}`;
+        return `https://api.unsplash.com/search/photos?&query=${searchQuery}&client_id=${CLIENT_ID.CLIENT_ID}&=orientation=${selectedOrientation}&page=${currentPage}`;
       case !selectedColor && !selectedOrientation:
-        return `https://api.unsplash.com/search/photos?&query=${searchQuery}&client_id=${CLIENT_ID}&page=${currentPage}`;
+        return `https://api.unsplash.com/search/photos?&query=${searchQuery}&client_id=${CLIENT_ID.CLIENT_ID}&page=${currentPage}`;
       case selectedColor !== '' && selectedOrientation !== '':
-        return `https://api.unsplash.com/search/photos?&query=${searchQuery}&client_id=${CLIENT_ID}&page=${currentPage}&&=orientation=${selectedOrientation}&color=${selectedColor}`;
+        return `https://api.unsplash.com/search/photos?&query=${searchQuery}&client_id=${CLIENT_ID.CLIENT_ID}&page=${currentPage}&&=orientation=${selectedOrientation}&color=${selectedColor}`;
       default:
         return apiEndPoint;
     }
@@ -165,6 +165,7 @@ const Home = ({navigation}) => {
           <Text style={styles.clearText}>Clear</Text>
         </TouchableOpacity>
       </View>
+      <Text>{photos.length ? photos.length + ' Results' : ''}</Text>
 
       <SafeAreaView style={styles.container}>
         <FlatList
