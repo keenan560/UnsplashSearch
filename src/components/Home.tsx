@@ -8,7 +8,7 @@
  * @format
  */
 
-import React, { useState, useContext, useRef } from 'react';
+import React, {useState, useContext, useRef} from 'react';
 import {
   SafeAreaView,
   StatusBar,
@@ -22,11 +22,11 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import SelectDropdown from 'react-native-select-dropdown';
-import { PhotoContext } from '../App';
+import {PhotoContext} from '../App';
 import CLIENT_ID from '../../env';
-import { useCallback } from 'react';
+import {useCallback} from 'react';
 
-const Home = ({ navigation }) => {
+const Home = ({navigation}) => {
   interface IsSearch {
     search: string;
     api: string;
@@ -118,6 +118,7 @@ const Home = ({ navigation }) => {
         alert('Please enter a valid query');
       }
     } catch (error) {
+      console.log(error);
       setIsLoading(false);
       alert('Sorry we are experiencing technical difficulties');
     }
@@ -149,18 +150,18 @@ const Home = ({ navigation }) => {
     orientationRef.current.reset();
   };
 
-  const renderItem = ({ item }) => {
+  const renderItem = ({item}) => {
     return (
       <View style={styles.itemContainer}>
         <TouchableOpacity
           onPress={() => {
             photoContext.photoDispatch({
               type: 'photoSelected',
-              payload: { data: item },
+              payload: {data: item},
             });
             navigation.navigate('Details');
           }}>
-          <Image source={{ uri: item.urls.thumb }} style={styles.itemThumbnail} />
+          <Image source={{uri: item.urls.thumb}} style={styles.itemThumbnail} />
         </TouchableOpacity>
       </View>
     );
@@ -280,7 +281,7 @@ const styles = StyleSheet.create({
     width: 50,
   },
   itemContainer: {
-    borderWidth: 0.5,
+    borderWidth: 0,
     width: 363.4,
     padding: 15,
     marginBottom: 20,
@@ -289,7 +290,6 @@ const styles = StyleSheet.create({
   },
   itemThumbnail: {
     height: 300,
-    borderWidth: 10,
     marginBottom: 5,
     backgroundColor: '#fff',
   },

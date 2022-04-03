@@ -60,7 +60,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: '#fff',
-    fontFamily: 'sans-serif-condensed',
     fontStyle: 'italic',
   },
   headerStyle: {
