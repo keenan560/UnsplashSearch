@@ -8,7 +8,7 @@
  * @format
  */
 
-import React, {useState, useContext} from 'react';
+import React, { useState, useContext, useRef } from 'react';
 import {
   SafeAreaView,
   StatusBar,
@@ -21,12 +21,12 @@ import {
   Image,
   ActivityIndicator,
 } from 'react-native';
-import {Picker} from '@react-native-picker/picker';
-import {PhotoContext} from '../App';
+import SelectDropdown from 'react-native-select-dropdown';
+import { PhotoContext } from '../App';
 import CLIENT_ID from '../../env';
-import {useCallback} from 'react';
+import { useCallback } from 'react';
 
-const Home = ({navigation}) => {
+const Home = ({ navigation }) => {
   interface IsSearch {
     search: string;
     api: string;
@@ -37,10 +37,73 @@ const Home = ({navigation}) => {
   const [selectedColor, setSelectedColor] = useState('');
   const [selectedOrientation, setSelectedOrientation] = useState('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [toggleCheckBox, setToggleCheckBox] = useState(false);
   const photoContext = useContext(PhotoContext);
   const [currentPage, setCurrentPage] = useState(1);
   const apiEndPoint: IsSearch['api'] = `https://api.unsplash.com/search/photos?&query=${searchQuery}&client_id=${CLIENT_ID.CLIENT_ID}&page=${currentPage}`;
+
+  const colorRef = useRef({});
+  const orientationRef = useRef({});
+  const colors = [
+    {
+      property: 'Black & White',
+      value: 'black_and_white',
+    },
+    {
+      property: 'Black',
+      value: 'Black',
+    },
+    {
+      property: 'White',
+      value: 'white',
+    },
+    {
+      property: 'Yellow',
+      value: 'yellow',
+    },
+    {
+      property: 'Orange',
+      value: 'orange',
+    },
+    {
+      property: 'Red',
+      value: 'red',
+    },
+    {
+      property: 'Purple',
+      value: 'purple',
+    },
+    {
+      property: 'Magenta',
+      value: 'magenta',
+    },
+    {
+      property: 'Green',
+      value: 'green',
+    },
+    {
+      property: 'Teal',
+      value: 'teal',
+    },
+    {
+      property: 'Blue',
+      value: 'blue',
+    },
+  ];
+
+  const orientation = [
+    {
+      property: 'Landscape',
+      value: 'landscape',
+    },
+    {
+      property: 'Potrait',
+      value: 'portrait',
+    },
+    {
+      property: 'Squarish',
+      value: 'squarish',
+    },
+  ];
 
   const unsplashSearch = useCallback(async () => {
     setIsLoading(true);
@@ -82,20 +145,22 @@ const Home = ({navigation}) => {
     setSelectedOrientation('');
     setCurrentPage(1);
     setIsLoading(false);
+    colorRef.current.reset();
+    orientationRef.current.reset();
   };
 
-  const renderItem = ({item}) => {
+  const renderItem = ({ item }) => {
     return (
       <View style={styles.itemContainer}>
         <TouchableOpacity
           onPress={() => {
             photoContext.photoDispatch({
               type: 'photoSelected',
-              payload: {data: item},
+              payload: { data: item },
             });
             navigation.navigate('Details');
           }}>
-          <Image source={{uri: item.urls.thumb}} style={styles.itemThumbnail} />
+          <Image source={{ uri: item.urls.thumb }} style={styles.itemThumbnail} />
         </TouchableOpacity>
       </View>
     );
@@ -124,34 +189,42 @@ const Home = ({navigation}) => {
         onChangeText={text => setSearchQuery(text)}
       />
       <Text>Filters (optional)</Text>
-      <Picker
-        selectedValue={selectedColor}
-        style={{height: 50, width: '100%'}}
-        onValueChange={(itemValue, itemIndex) => setSelectedColor(itemValue)}>
-        <Picker.Item label="By color" value="" />
-        <Picker.Item label="Black & White" value="black_and_white" />
-        <Picker.Item label="Black" value="black" />
-        <Picker.Item label="White" value="white" />
-        <Picker.Item label="Yellow" value="yellow" />
-        <Picker.Item label="Orange" value="orange" />
-        <Picker.Item label="Red" value="red" />
-        <Picker.Item label="Purple" value="purple" />
-        <Picker.Item label="Magenta" value="magenta" />
-        <Picker.Item label="Green" value="green" />
-        <Picker.Item label="Teal" value="teal" />
-        <Picker.Item label="Blue" value="blue" />
-      </Picker>
-      <Picker
-        selectedValue={selectedOrientation}
-        style={{height: 50, width: '100%'}}
-        onValueChange={(itemValue, itemIndex) =>
-          setSelectedOrientation(itemValue)
-        }>
-        <Picker.Item label="By orientation" value="" />
-        <Picker.Item label="Landscape" value="landscape" />
-        <Picker.Item label="Potrait" value="portrait" />
-        <Picker.Item label="Squarish" value="squarish" />
-      </Picker>
+      <SelectDropdown
+        data={colors}
+        ref={colorRef}
+        onSelect={(selectedItem, index) => {
+          console.log(selectedItem, index);
+          setSelectedColor(selectedItem.value);
+        }}
+        buttonTextAfterSelection={(selectedItem, index) => {
+          // text represented after item is selected
+          // if data array is an array of objects then return selectedItem.property to render after item is selected
+          return selectedItem.property;
+        }}
+        rowTextForSelection={(item, index) => {
+          // text represented for each item in dropdown
+          // if data array is an array of objects then return item.property to represent item in dropdown
+          return item.property;
+        }}
+      />
+      <SelectDropdown
+        data={orientation}
+        ref={orientationRef}
+        onSelect={(selectedItem, index) => {
+          console.log(selectedItem, index);
+          setSelectedOrientation(selectedItem.value);
+        }}
+        buttonTextAfterSelection={(selectedItem, index) => {
+          // text represented after item is selected
+          // if data array is an array of objects then return selectedItem.property to render after item is selected
+          return selectedItem.property;
+        }}
+        rowTextForSelection={(item, index) => {
+          // text represented for each item in dropdown
+          // if data array is an array of objects then return item.property to represent item in dropdown
+          return item.property;
+        }}
+      />
       <View
         style={{
           flexDirection: 'row',
