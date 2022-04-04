@@ -33,7 +33,3 @@ For android run:
 For ios run:
 
 `npm run ios`
-
-# iOS Issue
-
-Project is currently experiencing issues with xcode, therefore it is recommended until fixed that the project be ran in android.
